@@ -755,7 +755,7 @@ footer small {
 <canvas id="particles"></canvas>
 
 <!-- BACKGROUND MUSIC -->
-<audio id="birthdayMusic" loop preload="none">
+<audio id="birthdayMusic" loop preload="auto" playsinline>
   <source src="music/birthday-song.mp3" type="audio/mpeg">
 </audio>
 
@@ -1113,19 +1113,20 @@ function fadeMusicIn(duration = 4500) {
   musicFadeFrame = requestAnimationFrame(fadeStep);
 }
 
+function updateMusicPlaying() {
+  musicButton.textContent = '❚❚';
+  musicStatus.textContent = 'Playing for you ❤️';
+  musicPlayer.classList.add('playing');
+}
+
 async function playMusic() {
   try {
-    birthdayMusic.volume = 0;
     await birthdayMusic.play();
-
-    musicButton.textContent = '❚❚';
-    musicStatus.textContent = 'Playing for you ❤️';
-    musicPlayer.classList.add('playing');
-
+    updateMusicPlaying();
     fadeMusicIn(4000);
   } catch (error) {
     musicStatus.textContent = 'Tap to play ❤️';
-    console.log('Music could not start:', error);
+    console.log('Music playback error:', error);
   }
 }
 
@@ -1134,11 +1135,22 @@ function toggleMusic() {
     playMusic();
   } else {
     birthdayMusic.pause();
+
+    if (musicFadeFrame !== null) {
+      cancelAnimationFrame(musicFadeFrame);
+      musicFadeFrame = null;
+    }
+
     musicButton.textContent = '▶';
     musicStatus.textContent = 'Paused';
     musicPlayer.classList.remove('playing');
   }
 }
+
+birthdayMusic.addEventListener('error', () => {
+  musicStatus.textContent = 'Song could not load';
+  console.log('Audio loading error:', birthdayMusic.error);
+});
 
 birthdayMusic.addEventListener('ended', () => {
   musicButton.textContent = '▶';
@@ -1287,9 +1299,8 @@ animate();
 
 let candleBlown = false;
 
-async function blowCandle() {
+function blowCandle() {
   if (candleBlown) return;
-
   candleBlown = true;
 
   const button = document.getElementById('blowButton');
@@ -1301,36 +1312,30 @@ async function blowCandle() {
   button.disabled = true;
   button.textContent = '✨ YOUR WISH IS IN THE STARS...';
 
-  // 1. Extinguish the candle and show the smoke.
   flame.classList.add('out');
   smoke.classList.add('show');
+  instruction.textContent = 'Your wish is in the stars, my love... ❤️';
 
-  instruction.textContent =
-    'Your wish is in the stars, my love... ❤️';
-
-  // 2. Start the audio silently while still inside the click action.
-  // This allows the browser to permit playback; volume stays at zero.
-  let musicStarted = false;
+  // Call play() immediately within the candle-button click.
+  // Browsers are more likely to allow playback when it starts here.
   birthdayMusic.volume = 0;
+  let musicStarted = false;
 
-  try {
-    await birthdayMusic.play();
+  const startAttempt = birthdayMusic.play();
+  startAttempt.then(() => {
     musicStarted = true;
-    musicButton.textContent = '❚❚';
-    musicStatus.textContent = 'A song just for you ❤️';
-    musicPlayer.classList.add('playing');
-  } catch (error) {
+    updateMusicPlaying();
+  }).catch((error) => {
     musicStatus.textContent = 'Tap to play ❤️';
-    console.log('Music needs a play-button tap:', error);
-  }
+    musicButton.textContent = '▶';
+    console.log('Browser blocked automatic playback:', error);
+  });
 
-  // 3. Release a shower of hearts and stars.
   for (let i = 0; i < 100; i++) {
     createParticle(true);
   }
 
-  // 4. Let the silence linger, then fade away the intro.
-  // The intro's CSS transition lasts 1.5 seconds.
+  // Keep a short magical pause before revealing the birthday page.
   setTimeout(() => {
     intro.classList.add('leaving');
     document.body.style.overflow = '';
@@ -1339,7 +1344,7 @@ async function blowCandle() {
       behavior: 'smooth'
     });
 
-    // 5. Once the intro has faded, gently bring in Tharame.
+    // The intro fades for 1.5 seconds; then bring in the song gently.
     setTimeout(() => {
       if (musicStarted && !birthdayMusic.paused) {
         fadeMusicIn(4500);
@@ -1347,9 +1352,9 @@ async function blowCandle() {
         musicStatus.textContent = 'Tap to play ❤️';
       }
     }, 1550);
-
   }, 1800);
 }
+
   
 </script>
 
