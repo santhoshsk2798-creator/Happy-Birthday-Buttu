@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1085,6 +1084,35 @@ const musicButton = document.getElementById('musicButton');
 const musicPlayer = document.getElementById('musicPlayer');
 const musicStatus = document.getElementById('musicStatus');
 
+let musicFadeFrame = null;
+
+function fadeMusicIn(duration = 4500) {
+  if (musicFadeFrame !== null) {
+    cancelAnimationFrame(musicFadeFrame);
+  }
+
+  birthdayMusic.volume = 0;
+  const startTime = performance.now();
+
+  function fadeStep(now) {
+    if (birthdayMusic.paused) {
+      musicFadeFrame = null;
+      return;
+    }
+
+    const progress = Math.min((now - startTime) / duration, 1);
+    birthdayMusic.volume = progress;
+
+    if (progress < 1) {
+      musicFadeFrame = requestAnimationFrame(fadeStep);
+    } else {
+      musicFadeFrame = null;
+    }
+  }
+
+  musicFadeFrame = requestAnimationFrame(fadeStep);
+}
+
 async function playMusic() {
   try {
     birthdayMusic.volume = 0;
@@ -1094,21 +1122,7 @@ async function playMusic() {
     musicStatus.textContent = 'Playing for you ❤️';
     musicPlayer.classList.add('playing');
 
-    // Smoothly fade the song in
-    const fadeDuration = 4000;
-    const startTime = performance.now();
-
-    function fadeIn(now) {
-      const progress = Math.min((now - startTime) / fadeDuration, 1);
-      birthdayMusic.volume = progress;
-
-      if (progress < 1 && !birthdayMusic.paused) {
-        requestAnimationFrame(fadeIn);
-      }
-    }
-
-    requestAnimationFrame(fadeIn);
-
+    fadeMusicIn(4000);
   } catch (error) {
     musicStatus.textContent = 'Tap to play ❤️';
     console.log('Music could not start:', error);
@@ -1287,61 +1301,52 @@ async function blowCandle() {
   button.disabled = true;
   button.textContent = '✨ YOUR WISH IS IN THE STARS...';
 
-  // Extinguish the candle
+  // 1. Extinguish the candle and show the smoke.
   flame.classList.add('out');
   smoke.classList.add('show');
 
-  instruction.innerHTML =
+  instruction.textContent =
     'Your wish is in the stars, my love... ❤️';
 
-  // Start audio silently during the click interaction.
-  // This helps avoid browser autoplay restrictions.
+  // 2. Start the audio silently while still inside the click action.
+  // This allows the browser to permit playback; volume stays at zero.
+  let musicStarted = false;
   birthdayMusic.volume = 0;
 
   try {
     await birthdayMusic.play();
-
+    musicStarted = true;
     musicButton.textContent = '❚❚';
     musicStatus.textContent = 'A song just for you ❤️';
     musicPlayer.classList.add('playing');
   } catch (error) {
-    console.log('Audio playback needs user interaction:', error);
+    musicStatus.textContent = 'Tap to play ❤️';
+    console.log('Music needs a play-button tap:', error);
   }
 
-  // Magical hearts and stars
+  // 3. Release a shower of hearts and stars.
   for (let i = 0; i < 100; i++) {
     createParticle(true);
   }
 
-  // A moment of silence before the reveal
+  // 4. Let the silence linger, then fade away the intro.
+  // The intro's CSS transition lasts 1.5 seconds.
   setTimeout(() => {
     intro.classList.add('leaving');
-
     document.body.style.overflow = '';
 
     document.getElementById('home').scrollIntoView({
       behavior: 'smooth'
     });
 
-    // Fade in the birthday song after the intro disappears
+    // 5. Once the intro has faded, gently bring in Tharame.
     setTimeout(() => {
-      if (!birthdayMusic.paused) {
-        const duration = 4500;
-        const start = performance.now();
-
-        function fadeIn(now) {
-          const progress = Math.min((now - start) / duration, 1);
-
-          birthdayMusic.volume = progress;
-
-          if (progress < 1 && !birthdayMusic.paused) {
-            requestAnimationFrame(fadeIn);
-          }
-        }
-
-        requestAnimationFrame(fadeIn);
+      if (musicStarted && !birthdayMusic.paused) {
+        fadeMusicIn(4500);
+      } else {
+        musicStatus.textContent = 'Tap to play ❤️';
       }
-    }, 1500);
+    }, 1550);
 
   }, 1800);
 }
