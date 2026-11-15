@@ -798,6 +798,22 @@ function animate() {
 
 animate();
 
+    
+// OPEN PHOTO IN FULL SCREEN
+
+function openPhoto(src) {
+  document.getElementById('largePhoto').src = src;
+
+  document.getElementById('photoViewer').style.display = 'flex';
+}
+
+// CLOSE PHOTO VIEWER
+
+function closePhoto() {
+  document.getElementById('photoViewer').style.display = 'none';
+}
+
+
 </script>
 
 </body>
