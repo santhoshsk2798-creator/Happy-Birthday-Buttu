@@ -1252,6 +1252,54 @@ function animate() {
 
 animate();
 
+  
+/* CINEMATIC CANDLE EXPERIENCE */
+
+let candleBlown = false;
+
+async function blowCandle() {
+
+  if (candleBlown) return;
+
+  candleBlown = true;
+
+  const button = document.getElementById('blowButton');
+  const flame = document.getElementById('candleFlame');
+  const smoke = document.getElementById('candleSmoke');
+  const instruction = document.getElementById('introInstruction');
+
+  button.disabled = true;
+  button.textContent = '✨ MAKING YOUR WISH COME TRUE...';
+
+  flame.classList.add('out');
+  smoke.classList.add('show');
+
+  instruction.innerHTML =
+    'Your wish is in the stars, my love... ❤️';
+
+  // Start the birthday music after her tap
+  playMusic();
+
+  // Magical celebration
+  for (let i = 0; i < 100; i++) {
+    createParticle(true);
+  }
+
+  // Reveal the birthday website
+  setTimeout(() => {
+
+    document.getElementById('birthdayIntro')
+      .classList.add('leaving');
+
+    document.body.style.overflow = '';
+
+    document.getElementById('home')
+      .scrollIntoView({behavior:'smooth'});
+
+  }, 1800);
+}
+
+  
 </script>
 
 </body>
