@@ -1071,3 +1071,253 @@ footer small {
   Made With All My Love ❤️
   <small>FOREVER YOURS · SANTHOSH & INDHUPRIYA</small>
 </footer>
+
+  <script>
+
+// BACKGROUND MUSIC
+
+const birthdayMusic = document.getElementById('birthdayMusic');
+const musicButton = document.getElementById('musicButton');
+const musicPlayer = document.getElementById('musicPlayer');
+const musicStatus = document.getElementById('musicStatus');
+
+function updateMusicPlaying() {
+  musicButton.textContent = '❚❚';
+  musicStatus.textContent = 'Playing for you ❤️';
+  musicPlayer.classList.add('playing');
+}
+
+async function playMusic() {
+  try {
+    // Start at an audible volume.
+    birthdayMusic.volume = 0.75;
+    await birthdayMusic.play();
+    updateMusicPlaying();
+  } catch (error) {
+    musicButton.textContent = '▶';
+    musicStatus.textContent = 'Tap to play ❤️';
+    console.log('Music playback error:', error);
+  }
+}
+
+function toggleMusic() {
+  if (birthdayMusic.paused) {
+    playMusic();
+  } else {
+    birthdayMusic.pause();
+    musicButton.textContent = '▶';
+    musicStatus.textContent = 'Paused';
+    musicPlayer.classList.remove('playing');
+  }
+}
+
+birthdayMusic.addEventListener('error', () => {
+  musicStatus.textContent = 'Song could not load';
+  console.log('Audio loading error:', birthdayMusic.error);
+});
+
+birthdayMusic.addEventListener('playing', updateMusicPlaying);
+
+birthdayMusic.addEventListener('pause', () => {
+  musicButton.textContent = '▶';
+  musicStatus.textContent = 'Paused';
+  musicPlayer.classList.remove('playing');
+});
+
+birthdayMusic.addEventListener('ended', () => {
+  musicButton.textContent = '▶';
+  musicStatus.textContent = 'Tap to play ❤️';
+  musicPlayer.classList.remove('playing');
+});
+
+// OPEN BIRTHDAY SURPRISE
+
+function startSurprise() {
+  document.getElementById('story').scrollIntoView({
+    behavior: 'smooth'
+  });
+}
+
+// SCROLL TO LOVE LETTER
+
+function goToStory() {
+  document.getElementById('story').scrollIntoView({
+    behavior: 'smooth'
+  });
+}
+
+// PHOTO GALLERY
+
+function openPhoto(src) {
+  const viewer = document.getElementById('photoViewer');
+  document.getElementById('largePhoto').src = src;
+  viewer.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closePhoto() {
+  document.getElementById('photoViewer').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closePhoto();
+  }
+});
+
+// BIRTHDAY CELEBRATION
+
+function celebrate() {
+  document.getElementById('cakeMessage').innerHTML =
+    'Happy Birthday, my love! May all your wishes come true. ❤️<br>' +
+    'Sending you a thousand kisses! 😘';
+
+  for (let i = 0; i < 100; i++) {
+    createParticle(true);
+  }
+}
+
+// FINAL SURPRISE
+
+function reveal() {
+  const secret = document.getElementById('secret');
+
+  secret.classList.add('show');
+
+  for (let i = 0; i < 100; i++) {
+    createParticle(true);
+  }
+
+  secret.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center'
+  });
+}
+
+// FLOATING HEARTS AND STARS
+
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+
+let particles = [];
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+window.addEventListener('resize', resize);
+resize();
+
+function createParticle(burst = false) {
+  const symbols = ['❤', '♥', '✦', '✨', '💕'];
+
+  particles.push({
+    x: burst
+      ? Math.random() * canvas.width
+      : Math.random() * canvas.width,
+
+    y: burst
+      ? canvas.height * 0.7
+      : canvas.height + 20,
+
+    speed: burst
+      ? Math.random() * 5 + 2
+      : Math.random() * 1.3 + 0.4,
+
+    size: Math.random() * 15 + 8,
+
+    symbol: symbols[
+      Math.floor(Math.random() * symbols.length)
+    ],
+
+    opacity: 1,
+    drift: Math.random() * 2 - 1
+  });
+}
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (Math.random() < 0.08) {
+    createParticle();
+  }
+
+  particles.forEach((p, index) => {
+    p.y -= p.speed;
+    p.x += p.drift;
+    p.opacity -= 0.002;
+
+    ctx.globalAlpha = Math.max(0, p.opacity);
+    ctx.font = p.size + 'px Arial';
+    ctx.fillStyle = '#ff9fc9';
+    ctx.fillText(p.symbol, p.x, p.y);
+
+    if (p.y < -30 || p.opacity <= 0) {
+      particles.splice(index, 1);
+    }
+  });
+
+  ctx.globalAlpha = 1;
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+
+/* CINEMATIC CANDLE EXPERIENCE */
+
+let candleBlown = false;
+
+function blowCandle() {
+  if (candleBlown) return;
+  candleBlown = true;
+
+  const button = document.getElementById('blowButton');
+  const flame = document.getElementById('candleFlame');
+  const smoke = document.getElementById('candleSmoke');
+  const instruction = document.getElementById('introInstruction');
+  const intro = document.getElementById('birthdayIntro');
+
+  button.disabled = true;
+  button.textContent = '✨ YOUR WISH IS IN THE STARS...';
+
+  flame.classList.add('out');
+  smoke.classList.add('show');
+
+  instruction.textContent =
+    'Your wish is in the stars, my love... ❤️';
+
+  // Start music directly from the candle-button click.
+  // Use audible volume immediately.
+  birthdayMusic.volume = 0.75;
+
+  birthdayMusic.play().then(() => {
+    updateMusicPlaying();
+  }).catch((error) => {
+    musicButton.textContent = '▶';
+    musicStatus.textContent = 'Tap to play ❤️';
+    console.log('Browser blocked automatic playback:', error);
+  });
+
+  // Magical hearts and stars
+  for (let i = 0; i < 100; i++) {
+    createParticle(true);
+  }
+
+  // Reveal the birthday page
+  setTimeout(() => {
+    intro.classList.add('leaving');
+    document.body.style.overflow = '';
+
+    document.getElementById('home').scrollIntoView({
+      behavior: 'smooth'
+    });
+  }, 1800);
+}
+
+</script>
+
+</body>
+</html>
