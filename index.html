@@ -1087,12 +1087,30 @@ const musicStatus = document.getElementById('musicStatus');
 
 async function playMusic() {
   try {
+    birthdayMusic.volume = 0;
     await birthdayMusic.play();
+
     musicButton.textContent = '❚❚';
     musicStatus.textContent = 'Playing for you ❤️';
     musicPlayer.classList.add('playing');
+
+    // Smoothly fade the song in
+    const fadeDuration = 4000;
+    const startTime = performance.now();
+
+    function fadeIn(now) {
+      const progress = Math.min((now - startTime) / fadeDuration, 1);
+      birthdayMusic.volume = progress;
+
+      if (progress < 1 && !birthdayMusic.paused) {
+        requestAnimationFrame(fadeIn);
+      }
+    }
+
+    requestAnimationFrame(fadeIn);
+
   } catch (error) {
-    musicStatus.textContent = 'Tap to try again';
+    musicStatus.textContent = 'Tap to play ❤️';
     console.log('Music could not start:', error);
   }
 }
@@ -1117,8 +1135,6 @@ birthdayMusic.addEventListener('ended', () => {
 // OPEN BIRTHDAY SURPRISE
 
 function startSurprise() {
-  playMusic();
-
   document.getElementById('story').scrollIntoView({
     behavior: 'smooth'
   });
@@ -1258,7 +1274,6 @@ animate();
 let candleBlown = false;
 
 async function blowCandle() {
-
   if (candleBlown) return;
 
   candleBlown = true;
@@ -1267,38 +1282,69 @@ async function blowCandle() {
   const flame = document.getElementById('candleFlame');
   const smoke = document.getElementById('candleSmoke');
   const instruction = document.getElementById('introInstruction');
+  const intro = document.getElementById('birthdayIntro');
 
   button.disabled = true;
-  button.textContent = '✨ MAKING YOUR WISH COME TRUE...';
+  button.textContent = '✨ YOUR WISH IS IN THE STARS...';
 
+  // Extinguish the candle
   flame.classList.add('out');
   smoke.classList.add('show');
 
   instruction.innerHTML =
     'Your wish is in the stars, my love... ❤️';
 
-  // Start the birthday music after her tap
-  playMusic();
+  // Start audio silently during the click interaction.
+  // This helps avoid browser autoplay restrictions.
+  birthdayMusic.volume = 0;
 
-  // Magical celebration
+  try {
+    await birthdayMusic.play();
+
+    musicButton.textContent = '❚❚';
+    musicStatus.textContent = 'A song just for you ❤️';
+    musicPlayer.classList.add('playing');
+  } catch (error) {
+    console.log('Audio playback needs user interaction:', error);
+  }
+
+  // Magical hearts and stars
   for (let i = 0; i < 100; i++) {
     createParticle(true);
   }
 
-  // Reveal the birthday website
+  // A moment of silence before the reveal
   setTimeout(() => {
-
-    document.getElementById('birthdayIntro')
-      .classList.add('leaving');
+    intro.classList.add('leaving');
 
     document.body.style.overflow = '';
 
-    document.getElementById('home')
-      .scrollIntoView({behavior:'smooth'});
+    document.getElementById('home').scrollIntoView({
+      behavior: 'smooth'
+    });
+
+    // Fade in the birthday song after the intro disappears
+    setTimeout(() => {
+      if (!birthdayMusic.paused) {
+        const duration = 4500;
+        const start = performance.now();
+
+        function fadeIn(now) {
+          const progress = Math.min((now - start) / duration, 1);
+
+          birthdayMusic.volume = progress;
+
+          if (progress < 1 && !birthdayMusic.paused) {
+            requestAnimationFrame(fadeIn);
+          }
+        }
+
+        requestAnimationFrame(fadeIn);
+      }
+    }, 1500);
 
   }, 1800);
 }
-
   
 </script>
 
